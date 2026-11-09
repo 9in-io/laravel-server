@@ -6,6 +6,8 @@
   development). No code changes were needed: the full test suite passes on Laravel 12 and 13 without
   deprecations, and the live end-to-end suite against 9in passes on Laravel 13.
 * Test that runs the published users-table migration against Laravel's default `users` table.
+* Fix: `OtpNotification` could not be autoloaded on case-sensitive filesystems (Linux) because its
+  file was still named `OTPNotification.php`, so OTP delivery failed on 3.0.0 and 3.0.1.
 
 ## 3.0.1 - 2026-11-09
 
