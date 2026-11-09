@@ -2,8 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 
 <head>
-    <title>
-    </title>
+    <title>{{ $purposeLabel }} code</title>
     <!--[if !mso]><!-->
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <!--<![endif]-->
@@ -97,7 +96,7 @@
                             <tbody>
                             <tr>
                                 <td align="center" style="font-size:0px;padding:10px 25px;word-break:break-word;">
-                                    <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:32px;line-height:1;text-align:center;color:#000000;">{{ $vars['brand'] }}</div>
+                                    <div style="font-family:Ubuntu, Helvetica, Arial, sans-serif;font-size:32px;line-height:1;text-align:center;color:#000000;">{{ $vars['brand'] ?? '' }}</div>
                                 </td>
                             </tr>
                             </tbody>
@@ -126,7 +125,7 @@
                             </tr>
                             <tr>
                                 <td align="center" style="font-size:0px;padding:10px 25px;padding-right:25px;padding-left:25px;word-break:break-word;">
-                                    <div style="font-family:open Sans Helvetica, Arial, sans-serif;font-size:16px;line-height:1;text-align:center;color:#000000;">Here is your verification code for {{ Str::title(str_replace('_', ' ', $option->action)) }}:</div>
+                                    <div style="font-family:open Sans Helvetica, Arial, sans-serif;font-size:16px;line-height:1;text-align:center;color:#000000;">Here is your {{ strtolower($purposeLabel) }} code:</div>
                                 </td>
                             </tr>
                             <tr>

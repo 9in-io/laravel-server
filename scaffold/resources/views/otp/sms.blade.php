@@ -1,1 +1,1 @@
-{{ $code }} is your {{ $vars['brand'] }} verification code for {{ Str::title(str_replace('_', ' ', $option->action)) }}.
+{{ $code }} is your {{ $vars['brand'] ?? '' }} {{ strtolower($purposeLabel) }} code.

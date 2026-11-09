@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## 3.0.0 - unreleased
+
+Rebranded as **9in** (`9in/laravel-server`, namespace `Nine\Laravel\Server`) and moved to adapter protocol v2. See [MIGRATION.md](MIGRATION.md).
+
+* Three endpoints instead of eight: `POST /nine/authenticate`, `/nine/user`, `/nine/event`, served by `Nine\Adapter\AdapterHandler` from 9in/php-sdk 3.
+* Timestamped `9in-signature` on requests and responses, previous-secret rotation, 5-minute replay window.
+* `EloquentUserAdapter` with OIDC claim mapping, case-insensitive email/username lookup, blocked users, password rehashing.
+* `otp.requested` delivered with `OtpNotification` (mail / Vonage / custom channel) or by your own listener.
+* Adapter events dispatched as `Nine\Laravel\Events\*` (9in/laravel-events 2).
+* `nine:login-link` command (Management API) replaces the token commands.
+* Removed: client/scope/OTP repositories, social links, filters, request validators, the v1 middleware and commands.
+* PHP 8.1+, Laravel 10–12. Feature tests with Orchestra Testbench.
+
 ## 2.1.5 - 2024-08-17
 
 * Fixed the Social Auth issue.

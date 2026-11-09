@@ -1,70 +1,97 @@
 <?php
 
-namespace SSOfy\Laravel\Notifications;
+namespace Nine\Laravel\Server\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Messages\NexmoMessage;
-use Illuminate\Notifications\Messages\VonageMessage;
-use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 
-class OTPNotification extends Notification implements ShouldQueue
+/**
+ * Delivers a one-time code from an `otp.requested` adapter event. Views:
+ * `nine::otp.email` and `nine::otp.sms` (publish with --tag=nine:views to customise).
+ */
+class OtpNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public $option;
+    /** @var array<string, mixed> userId, channel, to, code, purpose, expiresAt */
+    public $data;
 
+    /** @var array<string, mixed> */
     public $vars;
 
-    public $code;
+    /** @var string notification channel (mail, vonage, nexmo, a custom channel…) */
+    public $channel;
 
-    public $channels;
-
-    public function __construct($option, $vars, $code, $channels)
+    /**
+     * @param array<string, mixed> $data
+     * @param array<string, mixed> $vars
+     */
+    public function __construct(array $data, array $vars, string $channel)
     {
-        $this->option   = $option;
-        $this->vars     = $vars;
-        $this->code     = $code;
-        $this->channels = $channels;
+        $this->data    = $data;
+        $this->vars    = $vars;
+        $this->channel = $channel;
     }
 
     public function via($notifiable)
     {
-        return $this->channels;
+        return [$this->channel];
     }
 
     public function toMail($notifiable)
     {
-        return (new MailMessage)
-            ->subject('Verification Code')
-            ->view('vendor/ssofy/otp/email', [
-                'code'     => $this->code,
-                'option'   => $this->option,
-                'vars'     => $this->vars,
-                'settings' => $this->vars,
-            ]);
-    }
-
-    public function toNexmo($notifiable)
-    {
-        return (new NexmoMessage)->content($this->getSMSMessage());
+        return (new MailMessage())
+            ->subject($this->purposeLabel() . ' code')
+            ->view('nine::otp.email', $this->viewData());
     }
 
     public function toVonage($notifiable)
     {
-        return (new VonageMessage)->content($this->getSMSMessage());
+        return $this->smsMessage('Illuminate\Notifications\Messages\VonageMessage');
     }
 
-    protected function getSMSMessage()
+    public function toNexmo($notifiable)
     {
-        return trim(
-            view('vendor/ssofy/otp/sms', [
-                'code'     => $this->code,
-                'option'   => $this->option,
-                'vars'     => $this->vars,
-                'settings' => $this->vars,
-            ])
-        );
+        return $this->smsMessage('Illuminate\Notifications\Messages\NexmoMessage');
+    }
+
+    /** Plain text for custom SMS channels. */
+    public function toSms($notifiable): string
+    {
+        return $this->smsText();
+    }
+
+    public function smsText(): string
+    {
+        return trim(view('nine::otp.sms', $this->viewData())->render());
+    }
+
+    protected function smsMessage(string $class)
+    {
+        if (!class_exists($class)) {
+            throw new \RuntimeException("{$class} is not installed; install the Vonage notification channel or set NINE_OTP_SMS_CHANNEL.");
+        }
+        return (new $class())->content($this->smsText());
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function viewData(): array
+    {
+        return [
+            'code'         => (string) ($this->data['code'] ?? ''),
+            'purpose'      => (string) ($this->data['purpose'] ?? 'login'),
+            'purposeLabel' => $this->purposeLabel(),
+            'expiresAt'    => $this->data['expiresAt'] ?? null,
+            'vars'         => $this->vars,
+        ];
+    }
+
+    protected function purposeLabel(): string
+    {
+        return ($this->data['purpose'] ?? 'login') === 'password_reset' ? 'Password reset' : 'Sign-in';
     }
 }

@@ -1,61 +1,60 @@
 {
-    "name": "ssofy/laravel-server",
-    "type": "library",
-    "description": "Official SSOfy Laravel (Server) Package.",
+    "name": "9in/laravel-server",
+    "description": "Keep your users in your Laravel database and sign them in with 9in: adapter protocol v2 endpoints (authenticate, user, event) for Eloquent.",
     "keywords": [
-        "ssofy",
+        "9in",
         "sso",
-        "login",
-        "auth",
-        "authentication",
-        "oauth",
-        "oauth2",
         "laravel",
-        "package",
-        "passport",
-        "sdk"
+        "oauth2",
+        "openid-connect",
+        "adapter",
+        "authentication"
     ],
-    "homepage": "https://www.ssofy.com",
+    "homepage": "https://9in.io",
     "license": "MIT",
     "authors": [
         {
-            "name": "SSOfy",
-            "email": "support@ssofy.com"
+            "name": "9in",
+            "email": "support@9in.io"
         },
         {
             "name": "Cubelet Ltd.",
-            "email": "info@cubelet.co.uk"
+            "homepage": "https://cubelet.co.uk"
         }
     ],
     "require": {
-        "php": ">=5.6",
-        "laravel/framework": "^5.5|^6.0|^7.0|^8.0|^9.0|^10.0",
-        "illuminate/support": "^5.5|^6.0|^7.0|^8.0|^9.0|^10.0",
-        "illuminate/queue": "^5.5|^6.0|^7.0|^8.0|^9.0|^10.0",
-        "ssofy/php-sdk": "^2.0.0",
-        "ssofy/laravel-events": "1.0.0",
-        "ext-json": "*"
+        "php": ">=8.1",
+        "laravel/framework": "^10.0 || ^11.0 || ^12.0",
+        "9in/php-sdk": "^3.0",
+        "9in/laravel-events": "^2.0"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.11"
+        "friendsofphp/php-cs-fixer": "^3.11",
+        "orchestra/testbench": "^8.0 || ^9.0 || ^10.0",
+        "phpunit/phpunit": "^10.5 || ^11.0"
     },
     "autoload": {
         "psr-4": {
-            "SSOfy\\Laravel\\": "src/"
-        },
-        "exclude-from-classmap": [
-            "scaffold/Controllers"
-        ]
+            "Nine\\Laravel\\Server\\": "src/"
+        }
     },
-    "minimum-stability": "dev",
-    "scripts": {
-        "cs-fixer": "php-cs-fixer fix"
+    "autoload-dev": {
+        "psr-4": {
+            "Nine\\Laravel\\Server\\Tests\\": "tests/"
+        }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "SSOfy\\Laravel\\ServerServiceProvider"
+                "Nine\\Laravel\\Server\\ServerServiceProvider"
             ]
+        },
+        "branch-alias": {
+            "dev-master": "3.x-dev"
         }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "cs-fixer": "php-cs-fixer fix"
     }
 }

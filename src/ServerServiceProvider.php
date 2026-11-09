@@ -1,117 +1,73 @@
 <?php
 
-namespace SSOfy\Laravel;
+namespace Nine\Laravel\Server;
 
-use Illuminate\Foundation\Support\Providers\AuthServiceProvider as LaravelAuthServiceProvider;
-use SSOfy\Repositories\ClientRepositoryInterface;
-use SSOfy\Repositories\OTPRepositoryInterface;
-use SSOfy\Repositories\ScopeRepositoryInterface;
-use SSOfy\Repositories\UserRepositoryInterface;
-use SSOfy\Laravel\Commands\UserTokenDelete;
-use SSOfy\Laravel\Commands\UserTokenGeneration;
-use SSOfy\Laravel\Commands\UserTokenVerification;
-use SSOfy\Laravel\Middleware\ResponseMiddleware;
-use SSOfy\Laravel\Middleware\SignatureVerificationMiddleware;
-use SSOfy\Laravel\Repositories\ClientRepository;
-use SSOfy\Laravel\Repositories\OTPRepository;
-use SSOfy\Laravel\Repositories\ScopeRepository;
-use SSOfy\Laravel\Repositories\UserRepository;
+use Illuminate\Support\ServiceProvider;
+use Nine\Adapter\AdapterHandler;
+use Nine\Adapter\AdapterInterface;
+use Nine\Http\CurlHttpClient;
+use Nine\Http\HttpClientInterface;
+use Nine\Laravel\Server\Commands\CreateLoginLink;
+use Nine\ManagementClient;
 
-class ServerServiceProvider extends LaravelAuthServiceProvider
+class ServerServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        if ($this->app instanceof \Laravel\Lumen\Application) {
-            $this->app->configure('ssofy-server');
-        }
+        $this->mergeConfigFrom(__DIR__ . '/../config/nine-server.php', 'nine-server');
+
+        $this->app->bindIf(HttpClientInterface::class, CurlHttpClient::class);
+
+        $this->app->singleton(AdapterInterface::class, function ($app) {
+            return $app->make($app['config']->get('nine-server.adapter', EloquentUserAdapter::class));
+        });
+
+        $this->app->singleton(AdapterHandler::class, function ($app) {
+            $config = $app['config'];
+            $secret = $config->get('nine-server.secret');
+            if (empty($secret)) {
+                throw new \RuntimeException('9in adapter secret is not configured (NINE_ADAPTER_SECRET).');
+            }
+            return new AdapterHandler(
+                array_values(array_filter([$secret, $config->get('nine-server.previous_secret')])),
+                $app->make(AdapterInterface::class),
+                (int) $config->get('nine-server.tolerance', 300)
+            );
+        });
+
+        $this->app->singleton(ManagementClient::class, function ($app) {
+            $config = $app['config']->get('nine-server.management', []);
+            if (empty($config['issuer']) || empty($config['client_id']) || empty($config['client_secret'])) {
+                throw new \RuntimeException('9in Management API is not configured (NINE_ISSUER, NINE_CLIENT_ID, NINE_CLIENT_SECRET).');
+            }
+            return new ManagementClient($config['issuer'], $config['client_id'], $config['client_secret'], $app->make(HttpClientInterface::class));
+        });
     }
 
     public function boot()
     {
-        $this->registerPublishes();
+        $this->loadViewsFrom(__DIR__ . '/../scaffold/resources/views', 'nine');
 
-        $this->registerCommands();
-
-        $this->registerPolicies();
-
-        $this->setupBindings();
-
-        $this->registerMiddleware();
-
-        $this->registerRoutes();
-    }
-
-    public function registerCommands()
-    {
-        if (!$this->app->runningInConsole()) {
-            return;
+        if ($this->app['config']->get('nine-server.route.enabled', true) && !$this->app->routesAreCached()) {
+            $this->loadRoutesFrom(__DIR__ . '/../routes/nine-server.php');
         }
 
-        $this->commands([
-            UserTokenGeneration::class,
-            UserTokenVerification::class,
-            UserTokenDelete::class,
-        ]);
-    }
+        if ($this->app->runningInConsole()) {
+            $this->commands([CreateLoginLink::class]);
 
-    protected function registerPublishes()
-    {
-        if (!$this->app->runningInConsole()) {
-            return;
-        }
-
-        // config
-        $this->publishes([
-            __DIR__ . '/../config/ssofy-server.php'      => config_path('ssofy-server.php'),
-        ], ['ssofy', 'ssofy:config']);
-
-        // routes
-        $this->publishes([
-            __DIR__ . '/../routes/ssofy-server.php' => base_path('/routes/ssofy-server.php'),
-        ], ['ssofy', 'ssofy:routes']);
-
-        // views
-        $this->publishes([
-            __DIR__ . '/../scaffold/resources/views/' => base_path('resources/views/vendor/ssofy/'),
-        ], ['ssofy', 'ssofy:views']);
-
-        // migrations
-        if (!class_exists('CreateUserSocialLinksTable')) {
             $this->publishes([
-                __DIR__ . '/../database/migrations/add_missing_columns_to_users_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_add_missing_columns_to_users_table.php'),
-                __DIR__ . '/../database/migrations/create_user_social_links_table.php.stub' => database_path('migrations/' . date('Y_m_d_His', time()) . '_create_user_social_links_table.php'),
-            ], ['ssofy', 'ssofy:migrations']);
+                __DIR__ . '/../config/nine-server.php' => config_path('nine-server.php'),
+            ], ['nine', 'nine:config']);
+
+            $this->publishes([
+                __DIR__ . '/../scaffold/resources/views/' => resource_path('views/vendor/nine/'),
+            ], ['nine', 'nine:views']);
+
+            if (!class_exists('AddMissingColumnsToUsersTable')) {
+                $this->publishes([
+                    __DIR__ . '/../database/migrations/add_missing_columns_to_users_table.php.stub' => database_path('migrations/' . date('Y_m_d_His') . '_add_missing_columns_to_users_table.php'),
+                ], ['nine', 'nine:migrations']);
+            }
         }
-    }
-
-    private function setupBindings()
-    {
-        $this->app->singleton(ClientRepositoryInterface::class, config('ssofy-server.repository.client', ClientRepository::class));
-        $this->app->singleton(ScopeRepositoryInterface::class, config('ssofy-server.repository.scope', ScopeRepository::class));
-        $this->app->singleton(UserRepositoryInterface::class, config('ssofy-server.repository.user', UserRepository::class));
-        $this->app->singleton(OTPRepositoryInterface::class, config('ssofy-server.repository.otp', OTPRepository::class));
-    }
-
-    private function registerMiddleware()
-    {
-        $router = $this->app['router'];
-
-        $router->aliasMiddleware('ssofy.signature', SignatureVerificationMiddleware::class);
-        $router->aliasMiddleware('ssofy.response', ResponseMiddleware::class);
-    }
-
-    private function registerRoutes()
-    {
-        $router = $this->app['router'];
-
-        $routeFile = base_path('routes/ssofy-server.php');
-
-        if (!file_exists($routeFile)) {
-            return;
-        }
-
-        $router->prefix('/')
-               ->middleware(ResponseMiddleware::class)
-               ->group($routeFile);
     }
 }
