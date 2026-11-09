@@ -1,13 +1,19 @@
 # CHANGELOG
 
+## 3.1.1 - 2026-11-09
+
+* Fix: OTP notifications failed with "class not found" on case-sensitive filesystems (Linux servers).
+  The `OtpNotification` class was still in a file named `OTPNotification.php`, which PSR-4
+  autoloading cannot find there. Affected 3.0.0, 3.0.1 and 3.1.0.
+* Tests run on GitHub Actions: Laravel 10 to 13 on each supported PHP version, plus the lowest
+  dependency versions.
+
 ## 3.1.0 - 2026-11-09
 
 * Laravel 13 support (`laravel/framework` `^10.0 || ^11.0 || ^12.0 || ^13.0`; Orchestra Testbench 11 for
   development). No code changes were needed: the full test suite passes on Laravel 12 and 13 without
   deprecations, and the live end-to-end suite against 9in passes on Laravel 13.
 * Test that runs the published users-table migration against Laravel's default `users` table.
-* Fix: `OtpNotification` could not be autoloaded on case-sensitive filesystems (Linux) because its
-  file was still named `OTPNotification.php`, so OTP delivery failed on 3.0.0 and 3.0.1.
 
 ## 3.0.1 - 2026-11-09
 
