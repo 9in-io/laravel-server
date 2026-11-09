@@ -18,7 +18,7 @@ Every response is signed over the request path plus 9in's request id, so a respo
 be replayed. Applications, scopes, social login, sessions and two-factor authentication are
 configured in 9in, not here.
 
-Requires PHP 8.1+ and Laravel 10, 11 or 12.
+Requires PHP 8.1+ and Laravel 10, 11, 12 or 13 (Laravel 13 itself needs PHP 8.3+).
 
 ```bash
 composer require 9in/laravel-server:^3.0

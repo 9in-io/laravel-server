@@ -12,7 +12,7 @@ composer remove ssofy/laravel-server ssofy/laravel-events ssofy/php-sdk
 composer require 9in/laravel-server:^3.0
 ```
 
-PHP 8.1+ and Laravel 10–12 are required. Namespace `SSOfy\Laravel\…` → `Nine\Laravel\Server\…`.
+PHP 8.1+ and Laravel 10–13 are required. Namespace `SSOfy\Laravel\…` → `Nine\Laravel\Server\…`.
 The service provider is auto-discovered (`Nine\Laravel\Server\ServerServiceProvider`).
 
 ## 2. Configuration
