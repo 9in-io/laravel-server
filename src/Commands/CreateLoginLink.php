@@ -43,7 +43,7 @@ class CreateLoginLink extends Command
         }
 
         $this->line($link['url']);
-        $this->comment('Expires ' . date('c', (int) $link['expires_at']));
+        $this->comment('Expires ' . $link['expires_at']);   // ISO 8601 UTC
 
         return 0;
     }

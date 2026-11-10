@@ -1,11 +1,30 @@
-# Migrating from `ssofy/laravel-server` 2.x to `9in/laravel-server` 3.x
+# Migrating
+
+## 3.x → 4.x
+
+4.0 moves to `9in/php-sdk` 4 and `9in/laravel-events` 3, which read 9in's snake_case adapter
+events (the 9in release of 2026-11-10). Upgrade together with 9in.
+
+```bash
+composer require 9in/laravel-server:^4.0 -W
+```
+
+- Adapter events are `{id, event, created_at, data}` (were `type`, `createdAt`), and
+  `otp.requested` data is `user_id` / `expires_at` (were `userId` / `expiresAt`). The
+  `OtpRequested` accessors and the `$expiresAt` view variable of the OTP views keep their
+  names. A custom `nine-server.otp.notification` class that reads `$this->data['expiresAt']`
+  must read `$this->data['expires_at']`.
+- `php artisan nine:login-link` prints the expiry as 9in returns it (ISO 8601 UTC).
+- Users the adapter returns were already snake_case: nothing changes there.
+
+## From `ssofy/laravel-server` 2.x to `9in/laravel-server` 3.x
 
 SSOfy is now [9in](https://9in.io). 3.0 is a new major version under a new package name
 that serves **adapter protocol v2**.
 
 **Upgrading is required to use 9in.** `ssofy/laravel-server` 2.x only talks to the SSOfy service (it serves the SSOfy v1 resource-server protocol, which 9in never calls). That service has shut down (ssofy.com has lapsed), and 9in does not serve the SSOfy v1 protocol, so 2.x does not work against 9in. The old versions stay published but are no longer maintained. Move to 3.x as part of moving the app to 9in.
 
-## 1. Packages
+### 1. Packages
 
 ```bash
 composer remove ssofy/laravel-server ssofy/laravel-events ssofy/php-sdk
@@ -15,7 +34,7 @@ composer require 9in/laravel-server:^3.0
 PHP 8.1+ and Laravel 10–13 are required. Namespace `SSOfy\Laravel\…` → `Nine\Laravel\Server\…`.
 The service provider is auto-discovered (`Nine\Laravel\Server\ServerServiceProvider`).
 
-## 2. Configuration
+### 2. Configuration
 
 Publish the new config (`php artisan vendor:publish --tag=nine:config`) and copy your
 column mapping over from `config/ssofy-server.php`, then delete the old file.
@@ -34,7 +53,7 @@ column mapping over from `config/ssofy-server.php`, then delete the old file.
 | `user.columns` | `user.columns`, renamed to OIDC claims: `phone` → `phone_number`, `phone_verified` → `phone_number_verified`, `display_name` → `name`; `hash` removed; new `given_name`, `family_name`, `locale`, `zoneinfo`, `birthdate`, `blocked` |
 | `data.scopes`, `data.clients` | Create the applications and APIs in the 9in console |
 
-## 3. Routes
+### 3. Routes
 
 The endpoints move from `/ssofy/*` to `/nine/*` (`NINE_ADAPTER_PATH`), and from eight to three:
 
@@ -52,14 +71,14 @@ The endpoints move from `/ssofy/*` to `/nine/*` (`NINE_ADAPTER_PATH`), and from 
 Set the adapter URL in the console to `https://your-app.com/nine` (or keep `/ssofy` with
 `NINE_ADAPTER_PATH=ssofy`).
 
-## 4. Signatures
+### 4. Signatures
 
 The `ssofy.signature` and `ssofy.response` middleware are gone. Requests and responses use
 `9in-signature: t=<unix>,v1=<HMAC-SHA256(t.METHOD.path.body)>`. Requests older than five
 minutes are rejected, and responses are bound to the request id. This is handled for you
 by `Nine\Adapter\AdapterHandler`.
 
-## 5. Code you may have extended
+### 5. Code you may have extended
 
 | 2.x | 3.x |
 |---|---|

@@ -29,7 +29,7 @@ class ConfigTest extends TestCase
                     'GET https://acme.9in.test/.well-known/openid-configuration' => ['issuer' => 'https://acme.9in.test', 'token_endpoint' => 'https://acme.9in.test/oauth/token', 'jwks_uri' => 'https://acme.9in.test/.well-known/jwks.json', 'authorization_endpoint' => 'x', 'userinfo_endpoint' => 'x'],
                     'POST https://acme.9in.test/oauth/token'                     => ['access_token' => 'tok', 'expires_in' => 3600],
                     'GET https://acme.9in.test/api/v1/users/lookup?email=jane%40acme.com' => ['user' => ['id' => 'usr_9']],
-                    'POST https://acme.9in.test/api/v1/users/usr_9/login-link'   => ['url' => 'https://acme.9in.test/login-link/abc', 'expires_at' => 1893456000],
+                    'POST https://acme.9in.test/api/v1/users/usr_9/login-link'   => ['url' => 'https://acme.9in.test/login-link/abc', 'expires_at' => '2030-01-01T00:00:00.000Z'],
                 ];
                 $json = $routes["{$method} {$url}"] ?? null;
                 return $json ? new Response(200, [], json_encode($json)) : new Response(404, [], '{"error":"not_found"}');
@@ -38,6 +38,7 @@ class ConfigTest extends TestCase
 
         $this->artisan('nine:login-link', ['user' => 'jane@acme.com'])
             ->expectsOutput('https://acme.9in.test/login-link/abc')
+            ->expectsOutput('Expires 2030-01-01T00:00:00.000Z')
             ->assertExitCode(0);
 
         $this->artisan('nine:login-link', ['user' => 'nobody@acme.com'])->assertExitCode(1);

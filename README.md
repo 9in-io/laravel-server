@@ -21,7 +21,7 @@ configured in 9in, not here.
 Requires PHP 8.1+ and Laravel 10, 11, 12 or 13 (Laravel 13 itself needs PHP 8.3+).
 
 ```bash
-composer require 9in/laravel-server:^3.0
+composer require 9in/laravel-server:^4.0
 ```
 
 Upgrading from `ssofy/laravel-server` 2.x? Read [MIGRATION.md](MIGRATION.md).
@@ -94,9 +94,12 @@ Every adapter event is dispatched as a Laravel event from
 
 ```php
 Event::listen(\Nine\Laravel\Events\PasswordChanged::class, function ($event) {
-    // $event->userId() is your user's id
+    // $event->userId() is your user's id (the payload's data.user_id)
 });
 ```
+
+Adapter events are `{id, event, created_at, data}` with snake_case data; `otp.requested`
+carries `user_id`, `channel`, `to`, `code`, `purpose` and `expires_at` (ISO 8601 UTC).
 
 ## Sign-in links
 

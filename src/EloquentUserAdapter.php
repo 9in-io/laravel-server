@@ -67,7 +67,7 @@ class EloquentUserAdapter implements AdapterInterface
 
     public function onEvent(array $event): void
     {
-        if (($event['type'] ?? null) === 'otp.requested' && config('nine-server.otp.send', true)) {
+        if (($event['event'] ?? null) === 'otp.requested' && config('nine-server.otp.send', true)) {
             $this->sendOtp($event['data'] ?? []);
         }
 
@@ -108,7 +108,7 @@ class EloquentUserAdapter implements AdapterInterface
     }
 
     /**
-     * @param array<string, mixed> $data otp.requested payload: userId, channel, to, code, purpose, expiresAt
+     * @param array<string, mixed> $data otp.requested payload: user_id, channel, to, code, purpose, expires_at
      */
     protected function sendOtp(array $data): void
     {

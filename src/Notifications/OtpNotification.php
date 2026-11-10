@@ -15,7 +15,7 @@ class OtpNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    /** @var array<string, mixed> userId, channel, to, code, purpose, expiresAt */
+    /** @var array<string, mixed> the otp.requested data: user_id, channel, to, code, purpose, expires_at (ISO 8601) */
     public $data;
 
     /** @var array<string, mixed> */
@@ -85,7 +85,7 @@ class OtpNotification extends Notification implements ShouldQueue
             'code'         => (string) ($this->data['code'] ?? ''),
             'purpose'      => (string) ($this->data['purpose'] ?? 'login'),
             'purposeLabel' => $this->purposeLabel(),
-            'expiresAt'    => $this->data['expiresAt'] ?? null,
+            'expiresAt'    => $this->data['expires_at'] ?? null,
             'vars'         => $this->vars,
         ];
     }

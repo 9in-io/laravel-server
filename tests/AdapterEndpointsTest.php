@@ -98,10 +98,10 @@ class AdapterEndpointsTest extends TestCase
         Event::fake([OtpRequested::class, EventReceived::class]);
 
         $response = $this->adapterCall('event', [
-            'id'        => 'evt_1',
-            'type'      => 'otp.requested',
-            'createdAt' => '2026-11-09T10:00:00.000Z',
-            'data'      => ['userId' => '1', 'channel' => 'email', 'to' => 'jane@acme.com', 'code' => '424242', 'purpose' => 'login', 'expiresAt' => '2026-11-09T10:05:00.000Z'],
+            'id'         => 'evt_1',
+            'event'      => 'otp.requested',
+            'created_at' => '2026-11-09T10:00:00.000Z',
+            'data'       => ['user_id' => '1', 'channel' => 'email', 'to' => 'jane@acme.com', 'code' => '424242', 'purpose' => 'login', 'expires_at' => '2026-11-09T10:05:00.000Z'],
         ]);
 
         $response->assertStatus(204);
@@ -112,7 +112,8 @@ class AdapterEndpointsTest extends TestCase
             return $channels === ['mail'] && $notifiable->routes['mail'] === 'jane@acme.com' && $notification->data['code'] === '424242';
         });
         Event::assertDispatched(OtpRequested::class, function (OtpRequested $event) {
-            return $event->fromAdapter() && $event->code() === '424242';
+            return $event->fromAdapter() && $event->code() === '424242' && $event->userId() === '1'
+                && $event->expiresAt()?->format(DATE_ATOM) === '2026-11-09T10:05:00+00:00';
         });
         Event::assertDispatched(EventReceived::class);
     }
@@ -130,8 +131,8 @@ class AdapterEndpointsTest extends TestCase
         Event::fake([PasswordChanged::class]);
         config(['nine-server.otp.send' => false]);
 
-        $this->adapterCall('event', ['id' => 'e', 'type' => 'otp.requested', 'createdAt' => 'now', 'data' => ['channel' => 'email', 'to' => 'x@acme.com', 'code' => '1']])->assertStatus(204);
-        $this->adapterCall('event', ['id' => 'e2', 'type' => 'user.password_changed', 'createdAt' => '2026-11-09T10:00:00Z', 'data' => ['userId' => '1', 'fields' => []]])->assertStatus(204);
+        $this->adapterCall('event', ['id' => 'e', 'event' => 'otp.requested', 'created_at' => '2026-11-09T10:00:00.000Z', 'data' => ['channel' => 'email', 'to' => 'x@acme.com', 'code' => '1']])->assertStatus(204);
+        $this->adapterCall('event', ['id' => 'e2', 'event' => 'user.password_changed', 'created_at' => '2026-11-09T10:00:00.000Z', 'data' => ['user_id' => '1', 'fields' => []]])->assertStatus(204);
 
         Notification::assertNothingSent();
         Event::assertDispatched(PasswordChanged::class);
