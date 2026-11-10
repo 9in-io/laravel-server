@@ -67,7 +67,7 @@ class EloquentUserAdapter implements AdapterInterface
 
     public function onEvent(array $event): void
     {
-        if (($event['event'] ?? null) === 'otp.requested' && config('nine-server.otp.send', true)) {
+        if (($event['event_type'] ?? null) === 'otp.requested' && config('nine-server.otp.send', true)) {
             $this->sendOtp($event['data'] ?? []);
         }
 

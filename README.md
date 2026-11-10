@@ -98,7 +98,7 @@ Event::listen(\Nine\Laravel\Events\PasswordChanged::class, function ($event) {
 });
 ```
 
-Adapter events are `{id, event, created_at, data}` with snake_case data; `otp.requested`
+Adapter events are `{id, event_type, created_at, data}` with snake_case data; `otp.requested`
 carries `user_id`, `channel`, `to`, `code`, `purpose` and `expires_at` (ISO 8601 UTC).
 
 ## Sign-in links

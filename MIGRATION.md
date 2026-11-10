@@ -9,7 +9,7 @@ events (the 9in release of 2026-11-10). Upgrade together with 9in.
 composer require 9in/laravel-server:^4.0 -W
 ```
 
-- Adapter events are `{id, event, created_at, data}` (were `type`, `createdAt`), and
+- Adapter events are `{id, event_type, created_at, data}` (were `type`, `createdAt`), and
   `otp.requested` data is `user_id` / `expires_at` (were `userId` / `expiresAt`). The
   `OtpRequested` accessors and the `$expiresAt` view variable of the OTP views keep their
   names. A custom `nine-server.otp.notification` class that reads `$this->data['expiresAt']`
