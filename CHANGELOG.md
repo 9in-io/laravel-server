@@ -3,12 +3,15 @@
 ## 4.0.0 - 2026-11-10
 
 Breaking: requires `9in/php-sdk` ^4.0 and `9in/laravel-events` ^3.0 for 9in's snake_case adapter
-events (the 9in release of 2026-11-10). Includes the 3.1.1 fix. See [MIGRATION.md](MIGRATION.md).
+events (the 9in release of 2026-11-10). See [MIGRATION.md](MIGRATION.md).
+
+3.1.1 below was never tagged or published, so 4.0.0 is the first release with its
+`OtpNotification` autoload fix. Apps on 3.0.0–3.1.0 that deliver OTP codes on Linux need 4.0.0.
 
 * `onEvent` recognises `otp.requested` by `event_type` (was `type`); `OtpNotification` reads `expires_at`.
 * `nine:login-link` prints the ISO 8601 `expires_at` the API now returns (it formatted Unix seconds).
 
-## 3.1.1 - 2026-11-09
+## 3.1.1 - 2026-11-09 (not released; shipped in 4.0.0)
 
 * Fix: OTP notifications failed with "class not found" on case-sensitive filesystems (Linux servers).
   The `OtpNotification` class was still in a file named `OTPNotification.php`, which PSR-4
