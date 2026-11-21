@@ -103,7 +103,7 @@ carries `user_id`, `channel`, `to`, `code`, `purpose` and `expires_at` (ISO 8601
 
 ## Sign-in links
 
-`php artisan nine:login-link jane@acme.com --return-to=https://app.acme.com/callback`
+`php artisan nine:login-link jane@acme.com --return-to=https://app.acme.com/nine/callback`
 prints a single-use sign-in URL (the replacement for SSOfy's `auth/token`). It needs a
 confidential 9in application with management scopes in `NINE_ISSUER`,
 `NINE_CLIENT_ID` / `NINE_CLIENT_SECRET` (or `NINE_MANAGEMENT_CLIENT_ID` /
