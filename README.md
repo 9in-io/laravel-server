@@ -62,11 +62,17 @@ Upgrading from `ssofy/laravel-server` 2.x? Read [MIGRATION.md](MIGRATION.md).
     'picture'               => 'avatar_url',
     'blocked'               => null,                 // e.g. 'banned_at'
     'password'              => 'password',           // Laravel Hash (bcrypt/argon), rehashed when needed
-    'metadata'              => 'metadata',           // array/JSON; becomes the token's `app` claim
+    'metadata'              => 'metadata',           // array/JSON; stored on the 9in user (see below)
     // given_name, family_name, locale, zoneinfo, birthdate
 ],
 'identifiers' => ['email', 'username', 'phone'],   // what users may sign in with
 ```
+
+`metadata` is stored on the 9in user, but it isn't copied into tokens. Only
+[custom fields](https://9in.io/docs/users/#custom-profile-fields) marked **Include as a claim**
+(console → Login & Sign-Up → Custom Fields) become claims: put their values under
+`metadata.fields.<key>`, e.g. `{"fields": {"company": "Acme"}}`, and they appear in ID tokens and
+`/oauth/userinfo` with the `profile` scope.
 
 Emails and usernames are matched case-insensitively. For anything else (scopes, soft
 deletes, a different hasher, another data source), extend
