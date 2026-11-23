@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 5.0.0 - 2026-11-23
+
+Breaking: SSOfy is gone, and so is what this package kept for it. See [MIGRATION.md](MIGRATION.md).
+
+* `SSOFY_*` environment variables (adapter secret, OTP channels, event queue, Management API
+  credentials) are no longer read; use the `NINE_*` names.
+* Requires `9in/php-sdk` ^5.0.
+
 ## 4.0.0 - 2026-11-10
 
 Breaking: requires `9in/php-sdk` ^4.0 and `9in/laravel-events` ^3.0 for 9in's snake_case adapter

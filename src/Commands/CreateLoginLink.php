@@ -7,8 +7,7 @@ use Nine\Exceptions\NineException;
 use Nine\ManagementClient;
 
 /**
- * Replaces SSOfy's `ssofy:token-*` commands (auth/token): creates a single-use 9in
- * sign-in URL through the Management API.
+ * Creates a single-use 9in sign-in URL through the Management API.
  */
 class CreateLoginLink extends Command
 {

@@ -24,8 +24,6 @@ Requires PHP 8.1+ and Laravel 10, 11, 12 or 13 (Laravel 13 itself needs PHP 8.3+
 composer require 9in/laravel-server:^4.0
 ```
 
-Upgrading from `ssofy/laravel-server` 2.x? Read [MIGRATION.md](MIGRATION.md).
-
 ## Setup
 
 1. In the 9in console, open **Connections → User database**, choose **Adapter**, set the URL
@@ -110,23 +108,23 @@ carries `user_id`, `channel`, `to`, `code`, `purpose` and `expires_at` (ISO 8601
 ## Sign-in links
 
 `php artisan nine:login-link jane@acme.com --return-to=https://app.acme.com/nine/callback`
-prints a single-use sign-in URL (the replacement for SSOfy's `auth/token`). It needs a
+prints a single-use sign-in URL. It needs a
 confidential 9in application with management scopes in `NINE_ISSUER`,
 `NINE_CLIENT_ID` / `NINE_CLIENT_SECRET` (or `NINE_MANAGEMENT_CLIENT_ID` /
 `NINE_MANAGEMENT_CLIENT_SECRET`). Adapter users exist in 9in after their first sign-in.
 
 ## Environment
 
-| Variable | Fallback | Default |
-|---|---|---|
-| `NINE_ADAPTER_SECRET` | `SSOFY_ADAPTER_SECRET`, `SSOFY_API_SECRET` | (required) |
-| `NINE_ADAPTER_SECRET_PREVIOUS` | | Accepted during a secret rotation |
-| `NINE_ADAPTER_PATH` | | `nine` |
-| `NINE_ADAPTER_TOLERANCE` | | `300` seconds |
-| `NINE_OTP_EMAIL_CHANNEL` | `SSOFY_OTP_EMAIL_CHANNEL` | `mail` |
-| `NINE_OTP_SMS_CHANNEL` | `SSOFY_OTP_SMS_CHANNEL` | `vonage` |
-| `NINE_EVENT_QUEUE` | `SSOFY_EVENT_QUEUE` | default queue |
-| `NINE_ISSUER`, `NINE_CLIENT_ID`, `NINE_CLIENT_SECRET` | `SSOFY_URL`, `SSOFY_CLIENT_ID`, `SSOFY_CLIENT_SECRET` | for `nine:login-link` |
+| Variable | Default |
+|---|---|
+| `NINE_ADAPTER_SECRET` | (required) |
+| `NINE_ADAPTER_SECRET_PREVIOUS` | Accepted during a secret rotation |
+| `NINE_ADAPTER_PATH` | `nine` |
+| `NINE_ADAPTER_TOLERANCE` | `300` seconds |
+| `NINE_OTP_EMAIL_CHANNEL` | `mail` |
+| `NINE_OTP_SMS_CHANNEL` | `vonage` |
+| `NINE_EVENT_QUEUE` | default queue |
+| `NINE_ISSUER`, `NINE_CLIENT_ID`, `NINE_CLIENT_SECRET` | for `nine:login-link` |
 
 Sign users in to your app with [`9in/laravel`](https://github.com/9in-io/laravel). Both
 packages can be installed side by side.
@@ -140,4 +138,4 @@ composer test
 
 ## License
 
-The MIT License (MIT). See [LICENSE](LICENSE). 9in and SSOfy are by [Cubelet Ltd](https://cubelet.co.uk).
+The MIT License (MIT). See [LICENSE](LICENSE). 9in is by [Cubelet Ltd](https://cubelet.co.uk).

@@ -44,14 +44,17 @@ class ConfigTest extends TestCase
         $this->artisan('nine:login-link', ['user' => 'nobody@acme.com'])->assertExitCode(1);
     }
 
-    public function testLegacySecretFallback(): void
+    public function testReadsOnlyNineVariables(): void
     {
-        putenv('SSOFY_API_SECRET=legacy-secret');
+        putenv('SSOFY_API_SECRET=old-secret');
+        putenv('SSOFY_OTP_EMAIL_CHANNEL=old');
         try {
             $config = require __DIR__ . '/../config/nine-server.php';
-            $this->assertSame('legacy-secret', $config['secret']);
+            $this->assertNull($config['secret']);
+            $this->assertSame('mail', $config['otp']['channels']['email']);
         } finally {
             putenv('SSOFY_API_SECRET');
+            putenv('SSOFY_OTP_EMAIL_CHANNEL');
         }
     }
 }

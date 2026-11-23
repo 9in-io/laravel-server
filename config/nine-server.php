@@ -12,12 +12,9 @@ return [
     | put the new secret in NINE_ADAPTER_SECRET and the old one in
     | NINE_ADAPTER_SECRET_PREVIOUS.
     |
-    | SSOFY_ADAPTER_SECRET and SSOFY_API_SECRET are still read as fallbacks, but the
-    | value itself is a new one from 9in.
-    |
     */
 
-    'secret' => env('NINE_ADAPTER_SECRET', env('SSOFY_ADAPTER_SECRET', env('SSOFY_API_SECRET'))),
+    'secret' => env('NINE_ADAPTER_SECRET'),
 
     'previous_secret' => env('NINE_ADAPTER_SECRET_PREVIOUS'),
 
@@ -99,10 +96,10 @@ return [
         'send'         => true,
         'notification' => Nine\Laravel\Server\Notifications\OtpNotification::class,
         'channels'     => [
-            'email' => env('NINE_OTP_EMAIL_CHANNEL', env('SSOFY_OTP_EMAIL_CHANNEL', 'mail')),
-            'sms'   => env('NINE_OTP_SMS_CHANNEL', env('SSOFY_OTP_SMS_CHANNEL', 'vonage')),
+            'email' => env('NINE_OTP_EMAIL_CHANNEL', 'mail'),
+            'sms'   => env('NINE_OTP_SMS_CHANNEL', 'vonage'),
         ],
-        'queue'        => env('NINE_EVENT_QUEUE', env('SSOFY_EVENT_QUEUE')),
+        'queue'        => env('NINE_EVENT_QUEUE'),
         'vars'         => [
             'brand' => env('APP_NAME'),
         ],
@@ -119,13 +116,13 @@ return [
     |--------------------------------------------------------------------------
     |
     | A confidential 9in application with management scopes, for
-    | `php artisan nine:login-link` (replaces SSOfy's auth/token).
+    | `php artisan nine:login-link`.
     |
     */
 
     'management' => [
-        'issuer'        => env('NINE_ISSUER', env('SSOFY_URL')),
-        'client_id'     => env('NINE_MANAGEMENT_CLIENT_ID', env('NINE_CLIENT_ID', env('SSOFY_CLIENT_ID'))),
-        'client_secret' => env('NINE_MANAGEMENT_CLIENT_SECRET', env('NINE_CLIENT_SECRET', env('SSOFY_CLIENT_SECRET'))),
+        'issuer'        => env('NINE_ISSUER'),
+        'client_id'     => env('NINE_MANAGEMENT_CLIENT_ID', env('NINE_CLIENT_ID')),
+        'client_secret' => env('NINE_MANAGEMENT_CLIENT_SECRET', env('NINE_CLIENT_SECRET')),
     ],
 ];
